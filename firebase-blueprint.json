@@ -1,0 +1,219 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile and developer account statistics",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "developerName": { "type": "string" },
+        "country": { "type": "string" },
+        "experience": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "playStoreDevLink": { "type": "string" },
+        "agreedToManualTesting": { "type": "boolean" },
+        "credits": { "type": "number" },
+        "testingStreak": { "type": "number" },
+        "reliabilityScore": { "type": "number" },
+        "completedTestsCount": { "type": "number" },
+        "submittedAppsCount": { "type": "number" },
+        "role": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" },
+        "isSuspended": { "type": "boolean" }
+      },
+      "required": ["uid", "email", "credits"]
+    },
+    "App": {
+      "title": "Android Application Listing",
+      "description": "Android application submitted for closed testing",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string" },
+        "ownerDisplayName": { "type": "string" },
+        "ownerDevName": { "type": "string" },
+        "appName": { "type": "string" },
+        "packageName": { "type": "string" },
+        "category": { "type": "string" },
+        "shortDescription": { "type": "string" },
+        "fullDescription": { "type": "string" },
+        "appIconUrl": { "type": "string" },
+        "minAndroidVersion": { "type": "string" },
+        "optInLink": { "type": "string" },
+        "playStoreLink": { "type": "string" },
+        "googleGroupLink": { "type": "string" },
+        "privacyPolicyUrl": { "type": "string" },
+        "devContactEmail": { "type": "string" },
+        "testersNeeded": { "type": "number" },
+        "testersJoined": { "type": "number" },
+        "testingDurationDays": { "type": "number" },
+        "startDate": { "type": "number" },
+        "testingInstructions": { "type": "string" },
+        "dailyProofRequirement": { "type": "string" },
+        "creditsOffered": { "type": "number" },
+        "status": { "type": "string" },
+        "isVerified": { "type": "boolean" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["ownerId", "appName", "packageName", "optInLink", "playStoreLink", "status"]
+    },
+    "TestingRequest": {
+      "title": "Testing Request",
+      "description": "Request sent by a tester to test an app",
+      "type": "object",
+      "properties": {
+        "appId": { "type": "string" },
+        "appName": { "type": "string" },
+        "appIconUrl": { "type": "string" },
+        "appOwnerId": { "type": "string" },
+        "testerId": { "type": "string" },
+        "testerDisplayName": { "type": "string" },
+        "testerDevName": { "type": "string" },
+        "testerPhotoUrl": { "type": "string" },
+        "creditsReserved": { "type": "number" },
+        "status": { "type": "string" },
+        "rejectionReason": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["appId", "appOwnerId", "testerId", "status"]
+    },
+    "Assignment": {
+      "title": "Testing Assignment",
+      "description": "Active testing assignment between a tester and an app owner",
+      "type": "object",
+      "properties": {
+        "requestId": { "type": "string" },
+        "appId": { "type": "string" },
+        "appName": { "type": "string" },
+        "appIconUrl": { "type": "string" },
+        "appOwnerId": { "type": "string" },
+        "testerId": { "type": "string" },
+        "testerDisplayName": { "type": "string" },
+        "testerPhotoUrl": { "type": "string" },
+        "testingDurationDays": { "type": "number" },
+        "currentDay": { "type": "number" },
+        "completedDays": { "type": "number" },
+        "startDate": { "type": "number" },
+        "status": { "type": "string" },
+        "creditsReward": { "type": "number" },
+        "testingInstructions": { "type": "string" },
+        "optInLink": { "type": "string" },
+        "playStoreLink": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["appId", "appOwnerId", "testerId", "status"]
+    },
+    "DailyProof": {
+      "title": "Daily Testing Proof",
+      "description": "Daily screenshot and notes submitted by a tester",
+      "type": "object",
+      "properties": {
+        "assignmentId": { "type": "string" },
+        "appId": { "type": "string" },
+        "testerId": { "type": "string" },
+        "appOwnerId": { "type": "string" },
+        "dayNumber": { "type": "number" },
+        "screenshotUrl": { "type": "string" },
+        "notes": { "type": "string" },
+        "featuresTested": { "type": "string" },
+        "bugsFound": { "type": "string" },
+        "clientTimestamp": { "type": "number" },
+        "serverTimestamp": { "type": "number" },
+        "status": { "type": "string" },
+        "rejectionReason": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["assignmentId", "appId", "testerId", "dayNumber", "screenshotUrl", "status"]
+    },
+    "Feedback": {
+      "title": "Private Feedback",
+      "description": "Private test feedback submitted by a tester",
+      "type": "object",
+      "properties": {
+        "appId": { "type": "string" },
+        "appName": { "type": "string" },
+        "assignmentId": { "type": "string" },
+        "testerId": { "type": "string" },
+        "testerDisplayName": { "type": "string" },
+        "appOwnerId": { "type": "string" },
+        "rating": { "type": "number" },
+        "uiRating": { "type": "number" },
+        "performanceRating": { "type": "number" },
+        "stabilityRating": { "type": "number" },
+        "easeOfUseRating": { "type": "number" },
+        "bugsFound": { "type": "string" },
+        "suggestedImprovements": { "type": "string" },
+        "deviceModel": { "type": "string" },
+        "androidVersion": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["appId", "assignmentId", "testerId", "appOwnerId", "rating"]
+    },
+    "Notification": {
+      "title": "User Notification",
+      "description": "In-app system notification",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string" },
+        "relatedId": { "type": "string" },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["userId", "title", "message", "type", "read"]
+    },
+    "CreditTransaction": {
+      "title": "Credit Ledger Entry",
+      "description": "Transparent credit transaction entry",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "amount": { "type": "number" },
+        "type": { "type": "string" },
+        "relatedAppId": { "type": "string" },
+        "relatedAssignmentId": { "type": "string" },
+        "previousBalance": { "type": "number" },
+        "newBalance": { "type": "number" },
+        "description": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["userId", "amount", "type", "previousBalance", "newBalance"]
+    },
+    "Report": {
+      "title": "Abuse / Safety Report",
+      "description": "User report regarding invalid links or suspicious proof",
+      "type": "object",
+      "properties": {
+        "reporterId": { "type": "string" },
+        "reporterDisplayName": { "type": "string" },
+        "targetType": { "type": "string" },
+        "targetId": { "type": "string" },
+        "targetTitle": { "type": "string" },
+        "reason": { "type": "string" },
+        "details": { "type": "string" },
+        "status": { "type": "string" },
+        "resolutionNotes": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["reporterId", "targetType", "targetId", "reason"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": "#/entities/User", "description": "User profile documents" },
+    "/apps/{appId}": { "schema": "#/entities/App", "description": "Android application listings" },
+    "/testingRequests/{requestId}": { "schema": "#/entities/TestingRequest", "description": "Requests to test apps" },
+    "/assignments/{assignmentId}": { "schema": "#/entities/Assignment", "description": "Active testing assignments" },
+    "/assignments/{assignmentId}/dailyProofs/{proofId}": { "schema": "#/entities/DailyProof", "description": "Daily screenshot proofs" },
+    "/feedback/{feedbackId}": { "schema": "#/entities/Feedback", "description": "Private tester feedback" },
+    "/notifications/{notificationId}": { "schema": "#/entities/Notification", "description": "In-app notifications" },
+    "/creditTransactions/{transactionId}": { "schema": "#/entities/CreditTransaction", "description": "Credit ledger entries" },
+    "/reports/{reportId}": { "schema": "#/entities/Report", "description": "Abuse and safety reports" }
+  }
+}

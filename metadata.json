@@ -1,0 +1,8 @@
+{
+  "name": "TesterSetu – Closed Testing",
+  "description": "Community-based mutual Android app testing platform for Google Play closed testing.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

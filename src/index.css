@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@layer utilities {
+  /* Subtle mesh background grid */
+  .bg-grid-pattern {
+    background-size: 40px 40px;
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  }
+}
+
+/* Prevent horizontal overflow on mobile devices and WebViews */
+html,
+body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden !important;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  overscroll-behavior-x: none;
+}
+
+*, ::before, ::after {
+  box-sizing: border-box;
+}
+
+#root {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden !important;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Custom dark scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Utility to hide scrollbars for clean app look */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Ensure code, package names, and URLs break lines cleanly */
+code, pre, .break-all {
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
