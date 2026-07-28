@@ -128,26 +128,19 @@ export const SplashAndOnboarding: React.FC<SplashAndOnboardingProps> = ({ onComp
     return (
       <div className="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-6 text-slate-100">
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
+          initial={{ scale: 0.85, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col items-center justify-center space-y-5 text-center max-w-sm w-full mx-auto"
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="flex flex-col items-center justify-center space-y-6 text-center max-w-sm w-full mx-auto"
         >
-          <div className="flex items-center justify-center mx-auto">
-            <TestCircleLogo size="xl" showText={false} />
-          </div>
-          
-          <div className="space-y-2 flex flex-col items-center justify-center text-center w-full">
-            <h1 className="text-3xl font-black tracking-tight text-white text-center">
-              Tester<span className="text-blue-500">Setu</span>
-            </h1>
-            <p className="text-xs text-slate-400 font-medium text-center max-w-xs mx-auto">
-              Mutual Closed Testing Platform for Android Developers
-            </p>
+          {/* Main Logo & Glow Container - Stacked Column Layout */}
+          <div className="relative flex flex-col items-center justify-center text-center mx-auto w-full">
+            <div className="absolute inset-0 bg-blue-600/20 rounded-full blur-3xl animate-pulse" />
+            <TestCircleLogo size="2xl" layout="col" showText={true} />
           </div>
 
-          <div className="w-36 h-1 bg-slate-800 rounded-full overflow-hidden mt-2 mx-auto">
-            <div className="w-full h-full bg-gradient-to-r from-blue-500 via-teal-400 to-indigo-500 animate-pulse" />
+          <div className="w-40 h-1.5 bg-slate-800 rounded-full overflow-hidden mt-3 mx-auto">
+            <div className="w-full h-full bg-gradient-to-r from-blue-600 via-cyan-400 to-teal-400 animate-pulse" />
           </div>
         </motion.div>
       </div>
