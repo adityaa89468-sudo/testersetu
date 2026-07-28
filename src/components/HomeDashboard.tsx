@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { 
   Coins, 
@@ -14,7 +14,13 @@ import {
   Sparkles,
   Info,
   Layers,
-  ChevronRight
+  ChevronRight,
+  ExternalLink,
+  Copy,
+  Check,
+  BookOpen,
+  X,
+  HelpCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { AppListing, Assignment, TestingRequest } from '../types';
@@ -38,6 +44,25 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   onOpenAppDetails
 }) => {
   const { userProfile } = useAuth();
+  const [copiedGroupEmail, setCopiedGroupEmail] = useState(false);
+  const [showGroupStepsModal, setShowGroupStepsModal] = useState(false);
+  const [isGroupBannerDismissed, setIsGroupBannerDismissed] = useState(() => {
+    return localStorage.getItem('testersetu_group_joined') === 'true';
+  });
+
+  const googleGroupEmail = 'testersetu@googlegroups.com';
+  const googleGroupUrl = 'https://groups.google.com/g/testersetu';
+
+  const handleCopyGroupEmail = () => {
+    navigator.clipboard.writeText(googleGroupEmail);
+    setCopiedGroupEmail(true);
+    setTimeout(() => setCopiedGroupEmail(false), 2500);
+  };
+
+  const handleDoneGroupRequirement = () => {
+    localStorage.setItem('testersetu_group_joined', 'true');
+    setIsGroupBannerDismissed(true);
+  };
 
   // Calculate urgent actions
   const proofsDueToday = (activeAssignments || []).filter(a => a.status === 'in_progress');
@@ -45,6 +70,71 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
 
   return (
     <div className="space-y-6 sm:space-y-8 pb-12 w-full max-w-full overflow-x-hidden">
+
+      {/* MANDATORY GOOGLE GROUP NOTICE BANNER AT TOP */}
+      {!isGroupBannerDismissed && (
+        <div className="rounded-3xl bg-amber-500/10 dark:bg-amber-500/15 border-2 border-amber-500/30 p-5 sm:p-6 space-y-4 relative overflow-hidden shadow-lg shadow-amber-500/5">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="p-2.5 rounded-2xl bg-amber-500 text-white shrink-0 shadow-md shadow-amber-500/20">
+                <Users className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="px-2.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black uppercase tracking-wider animate-pulse">
+                    Mandatory Requirement
+                  </span>
+                  <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                    Join Official Google Group for Closed Testing Access
+                  </h2>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed max-w-2xl">
+                  Google Play Closed Testing requires all testers to join <strong className="font-mono text-amber-600 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">{googleGroupEmail}</strong> before testing links can open. <strong className="text-rose-600 dark:text-rose-400">If you do not join this group, app links will show "Item not found" on Google Play!</strong>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap items-center gap-2.5 pt-2 border-t border-amber-500/20">
+            <a
+              href={googleGroupUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center gap-2 shadow-md shadow-amber-600/20 transition-all cursor-pointer active:scale-98"
+            >
+              <Users className="w-4 h-4" />
+              <span>Join Google Group (testersetu)</span>
+              <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+            </a>
+
+            <button
+              onClick={handleCopyGroupEmail}
+              className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 font-bold text-xs flex items-center gap-2 shadow-sm transition-all cursor-pointer active:scale-98"
+            >
+              {copiedGroupEmail ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+              <span>{copiedGroupEmail ? 'Copied Group Email!' : `Copy ${googleGroupEmail}`}</span>
+            </button>
+
+            <button
+              onClick={() => setShowGroupStepsModal(true)}
+              className="px-4 py-2.5 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 text-blue-700 dark:text-blue-300 font-bold text-xs flex items-center gap-2 border border-blue-500/20 transition-all cursor-pointer active:scale-98"
+            >
+              <BookOpen className="w-4 h-4 text-blue-500" />
+              <span>Play Console Setup Steps</span>
+            </button>
+
+            <button
+              onClick={handleDoneGroupRequirement}
+              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center gap-1.5 shadow-md shadow-emerald-600/20 transition-all cursor-pointer active:scale-98 sm:ml-auto"
+              title="Click if you have already joined the Google Group to hide this message"
+            >
+              <Check className="w-4 h-4" />
+              <span>[ Done ] - I've Joined</span>
+            </button>
+          </div>
+        </div>
+      )}
       
       {/* Welcome Hero Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-teal-600 p-6 sm:p-8 text-white shadow-xl shadow-blue-500/15">
@@ -343,6 +433,155 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           </div>
         )}
       </div>
+
+      {/* Modal for Google Play Console Google Group Setup Steps */}
+      {showGroupStepsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                  <BookOpen className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-black text-base text-slate-900 dark:text-white">
+                    How to Add {googleGroupEmail} to Google Play Console
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Step-by-step guide to enable 20+ community testers for your app
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowGroupStepsModal(false)}
+                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Crucial Callout */}
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-2 text-xs text-amber-900 dark:text-amber-200">
+              <div className="font-bold flex items-center gap-1.5">
+                <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                <span>Why is this required?</span>
+              </div>
+              <p className="leading-relaxed">
+                Google Play restricts closed testing downloads exclusively to users listed in your testing track's Email List. By adding <strong className="font-mono">{googleGroupEmail}</strong>, every member of our community instantly gets permission to download and test your app without manual email entry!
+              </p>
+            </div>
+
+            {/* Step-by-Step List */}
+            <div className="space-y-3">
+              <h4 className="font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Play Console Configuration Steps:
+              </h4>
+
+              <div className="space-y-3 text-xs">
+                {/* Step 1 */}
+                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
+                    1
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-bold text-slate-900 dark:text-white">Log in to Google Play Console</p>
+                    <p className="text-slate-600 dark:text-slate-300">
+                      Go to <a href="https://play.google.com/console" target="_blank" rel="noreferrer" className="text-blue-500 underline font-medium">play.google.com/console</a> and select your published Android app.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 2 */}
+                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
+                    2
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-bold text-slate-900 dark:text-white">Navigate to Closed Testing</p>
+                    <p className="text-slate-600 dark:text-slate-300">
+                      In the left sidebar menu, scroll to <strong>Testing</strong> and click on <strong>Closed testing</strong>.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 3 */}
+                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
+                    3
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-bold text-slate-900 dark:text-white">Manage Your Active Track</p>
+                    <p className="text-slate-600 dark:text-slate-300">
+                      Locate your active testing track (e.g., <i>Alpha</i> or <i>Closed testing</i>) and click <strong>Manage track</strong>.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 4 */}
+                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
+                    4
+                  </div>
+                  <div className="space-y-2">
+                    <p className="font-bold text-slate-900 dark:text-white">Select "Google Groups" & Add Email List</p>
+                    <p className="text-slate-600 dark:text-slate-300">
+                      Click the <strong>Testers</strong> tab. Under <i>"How testers join your test"</i>, select <strong>Google Groups</strong>.
+                    </p>
+                    <p className="text-slate-600 dark:text-slate-300">
+                      Click <strong>Create email list</strong> (or edit your existing list), give it a name like <code>TesterSetu Community</code>, and paste:
+                    </p>
+                    <div className="flex items-center gap-2 p-2 rounded-xl bg-slate-900 text-slate-100 font-mono text-[11px]">
+                      <span>{googleGroupEmail}</span>
+                      <button
+                        onClick={handleCopyGroupEmail}
+                        className="ml-auto px-2 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white font-bold text-[10px]"
+                      >
+                        {copiedGroupEmail ? 'Copied' : 'Copy'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Step 5 */}
+                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
+                    5
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-bold text-slate-900 dark:text-white">Save Changes & Copy Opt-In Link</p>
+                    <p className="text-slate-600 dark:text-slate-300">
+                      Click <strong>Save changes</strong> at the bottom right. Copy your <strong>Opt-in link (Join on Android / Join on Web)</strong> and paste it into TesterSetu when adding your app!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="pt-2 flex gap-3">
+              <a
+                href={googleGroupUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-amber-600/20"
+              >
+                <Users className="w-4 h-4" />
+                <span>Join {googleGroupEmail} Now</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+              <button
+                onClick={() => setShowGroupStepsModal(false)}
+                className="py-3 px-5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );

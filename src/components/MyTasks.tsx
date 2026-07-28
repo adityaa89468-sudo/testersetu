@@ -15,6 +15,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Assignment, DailyProof } from '../types';
+import { TestingChatBox } from './TestingChatBox';
 
 interface MyTasksProps {
   assignments: Assignment[];
@@ -225,6 +226,17 @@ export const MyTasks: React.FC<MyTasksProps> = ({
                     <MessageSquare className="w-3.5 h-3.5" />
                     <span>Send Private Feedback</span>
                   </button>
+                </div>
+
+                {/* Direct User-to-User Chat Box */}
+                <div className="pt-1">
+                  <TestingChatBox
+                    assignmentId={item.id}
+                    appName={item.appName}
+                    otherPartyId={item.appOwnerId}
+                    userRole="tester"
+                    compact={true}
+                  />
                 </div>
 
               </div>

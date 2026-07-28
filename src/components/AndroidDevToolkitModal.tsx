@@ -236,11 +236,11 @@ android {
               <ul className="space-y-2 text-slate-600 dark:text-slate-300">
                 <li className="flex items-start gap-2">
                   <span className="w-5 h-5 rounded-full bg-blue-600/10 text-blue-600 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">1</span>
-                  <span><strong>Join Community Group:</strong> Ensure you join <code>developer-community-t4t@googlegroups.com</code> on Google Groups.</span>
+                  <span><strong>Join Official Google Group:</strong> Ensure you join <code>testersetu@googlegroups.com</code> on Google Groups.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-5 h-5 rounded-full bg-blue-600/10 text-blue-600 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">2</span>
-                  <span><strong>Add Google Group in Play Console:</strong> Open Google Play Console &rarr; Testing &rarr; Closed testing &rarr; Testers tab, select Google Groups, and paste <code>developer-community-t4t@googlegroups.com</code>.</span>
+                  <span><strong>Add Google Group in Play Console:</strong> Open Google Play Console &rarr; Testing &rarr; Closed testing &rarr; Testers tab, select Google Groups, and paste <code>testersetu@googlegroups.com</code>.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-5 h-5 rounded-full bg-blue-600/10 text-blue-600 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">3</span>

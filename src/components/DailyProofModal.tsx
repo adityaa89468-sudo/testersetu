@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Assignment } from '../types';
 import { addDoc, collection, doc, updateDoc, db } from '../lib/firebase';
+import { TestingChatBox } from './TestingChatBox';
 
 interface DailyProofModalProps {
   assignment: Assignment | null;
@@ -253,6 +254,17 @@ export const DailyProofModal: React.FC<DailyProofModalProps> = ({
               onChange={e => setNotes(e.target.value)}
               placeholder="Add optional comments for the app owner..."
               className="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
+
+          {/* User-to-User Testing Chat Box */}
+          <div className="pt-1">
+            <TestingChatBox
+              assignmentId={assignment.id}
+              appName={assignment.appName}
+              otherPartyId={assignment.appOwnerId}
+              userRole="tester"
+              compact={false}
             />
           </div>
 

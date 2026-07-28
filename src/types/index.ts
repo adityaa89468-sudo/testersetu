@@ -164,6 +164,7 @@ export type NotificationType =
   | 'proof_accepted' 
   | 'proof_rejected' 
   | 'feedback' 
+  | 'chat_message'
   | 'campaign_completed' 
   | 'admin';
 

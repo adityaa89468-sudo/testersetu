@@ -36,8 +36,8 @@ export const AddAppWizard: React.FC<AddAppWizardProps> = ({ isOpen, onClose, onA
   const [error, setError] = useState<string | null>(null);
   const [copiedEmail, setCopiedEmail] = useState(false);
 
-  const googleGroupEmail = 'developer-community-t4t@googlegroups.com';
-  const googleGroupUrl = 'https://groups.google.com/g/developer-community-t4t';
+  const googleGroupEmail = 'testersetu@googlegroups.com';
+  const googleGroupUrl = 'https://groups.google.com/g/testersetu';
 
   const handleCopyGroupEmail = () => {
     navigator.clipboard.writeText(googleGroupEmail);

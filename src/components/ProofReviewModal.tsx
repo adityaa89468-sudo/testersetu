@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { AppListing, DailyProof, Assignment } from '../types';
 import { doc, updateDoc, db, recordCreditTransaction, sendNotification } from '../lib/firebase';
+import { TestingChatBox } from './TestingChatBox';
 
 interface ProofReviewModalProps {
   app: AppListing | null;
@@ -243,6 +244,17 @@ export const ProofReviewModal: React.FC<ProofReviewModalProps> = ({
                       <strong>Notes:</strong> {selectedProof.notes}
                     </p>
                   )}
+
+                  {/* Chat Box with Tester */}
+                  <div className="pt-2">
+                    <TestingChatBox
+                      assignmentId={selectedProof.assignmentId}
+                      appName={app.appName}
+                      otherPartyId={selectedProof.testerId}
+                      userRole="developer"
+                      compact={true}
+                    />
+                  </div>
                 </div>
 
                 {/* Review Actions */}

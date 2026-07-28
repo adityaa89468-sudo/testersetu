@@ -120,6 +120,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                     {notif.type === 'proof_accepted' && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />}
                     {notif.type === 'proof_rejected' && <AlertCircle className="w-3.5 h-3.5 text-rose-500" />}
                     {notif.type === 'campaign_completed' && <Award className="w-3.5 h-3.5 text-amber-500" />}
+                    {notif.type === 'chat_message' && <MessageSquare className="w-3.5 h-3.5 text-blue-500" />}
                     <span>{notif.title}</span>
                   </h3>
 
