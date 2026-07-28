@@ -16,6 +16,7 @@ import {
   getFirestore, 
   doc, 
   getDoc, 
+  getDocFromServer,
   setDoc, 
   updateDoc, 
   collection, 
@@ -46,6 +47,18 @@ export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
+
+// Non-blocking connection check
+export async function testConnection() {
+  try {
+    await getDocFromServer(doc(db, '_connection_check', 'ping'));
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('the client is offline')) {
+      console.warn("Firestore running in offline mode. Local cache active.");
+    }
+  }
+}
+testConnection();
 
 // Structured Firestore Error Handler required by skill
 export enum OperationType {
@@ -238,6 +251,7 @@ export {
   type User,
   doc, 
   getDoc, 
+  getDocFromServer,
   setDoc, 
   updateDoc, 
   collection, 

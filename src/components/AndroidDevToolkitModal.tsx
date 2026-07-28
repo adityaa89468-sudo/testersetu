@@ -22,7 +22,7 @@ export const AndroidDevToolkitModal: React.FC<AndroidDevToolkitModalProps> = ({
   isOpen,
   onClose
 }) => {
-  const [activeTab, setActiveTab] = useState<'gradle' | 'manifest' | 'checklist'>('gradle');
+  const [activeTab, setActiveTab] = useState<'gradle' | 'manifest' | 'checklist' | 'sha1'>('gradle');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   if (!isOpen) return null;
@@ -150,6 +150,18 @@ android {
             <ShieldCheck className="w-4 h-4" />
             <span>Play Console Setup</span>
           </button>
+
+          <button
+            onClick={() => setActiveTab('sha1')}
+            className={`flex-1 py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              activeTab === 'sha1'
+                ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-sm'
+                : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            <Layers className="w-4 h-4" />
+            <span>Find SHA-1 Key</span>
+          </button>
         </div>
 
         {/* Content Views */}
@@ -243,7 +255,46 @@ android {
           </div>
         )}
 
-        {/* Footer */}
+        {activeTab === 'sha1' && (
+          <div className="space-y-4 text-xs">
+            <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 space-y-2">
+              <h3 className="font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4" />
+                Where to Find Your SHA-1 Certificate Fingerprint
+              </h3>
+              <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                SHA-1 key fingerprints are required for Google Play App Integrity, Firebase authentication, and OAuth verification.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-3">
+              <h4 className="font-bold text-slate-900 dark:text-white">Method 1: Google Play Console (Play App Signing)</h4>
+              <ol className="list-decimal pl-4 space-y-1 text-slate-600 dark:text-slate-300">
+                <li>Log in to your <strong>Google Play Console</strong> account.</li>
+                <li>Select your Android application.</li>
+                <li>In the left sidebar menu, go to <strong>Setup &rarr; App signing</strong> (or <strong>App integrity</strong>).</li>
+                <li>Copy the <strong>SHA-1 certificate fingerprint</strong> listed under <i>App signing key certificate</i> or <i>Upload key certificate</i>.</li>
+              </ol>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-3">
+              <h4 className="font-bold text-slate-900 dark:text-white">Method 2: Android Studio (Gradle Task)</h4>
+              <ol className="list-decimal pl-4 space-y-1 text-slate-600 dark:text-slate-300">
+                <li>Open your project in <strong>Android Studio</strong>.</li>
+                <li>Click the <strong>Gradle</strong> tab on the top-right toolbar.</li>
+                <li>Navigate to <strong>Tasks &rarr; android &rarr; signingReport</strong>.</li>
+                <li>Double-click <strong>signingReport</strong> and inspect the terminal output for <code>SHA1: XX:XX:XX...</code>.</li>
+              </ol>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
+              <h4 className="font-bold text-slate-900 dark:text-white">Method 3: Terminal Command (keytool)</h4>
+              <pre className="p-3 rounded-xl bg-slate-950 text-slate-200 font-mono text-[11px] overflow-x-auto border border-slate-800">
+                <code>keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android</code>
+              </pre>
+            </div>
+          </div>
+        )}
         <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <span className="text-[11px] text-slate-500">
             For full Android Studio guidelines, see <code>ANDROID_DEVELOPMENT.md</code> in project root.

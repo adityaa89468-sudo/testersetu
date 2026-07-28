@@ -86,16 +86,51 @@ export const ProfileAndSettings: React.FC = () => {
     }
   };
 
+  const [copiedEmailText, setCopiedEmailText] = useState(false);
+
+  const getDeletionEmailDetails = () => {
+    if (!user) return { subjectText: '', bodyText: '', mailtoUrl: '', gmailWebUrl: '' };
+
+    const subjectText = `ACCOUNT DELETION REQUEST - TesterSetu [UID: ${user.uid}]`;
+    const bodyText = `OFFICIAL ACCOUNT DELETION REQUEST - TESTERSETU
+
+To: TesterSetu Support & Developer Team (testersetu@gmail.com)
+
+I am formally writing to request the permanent deletion of my developer account, personal profile, and all associated app testing data on the TesterSetu platform.
+
+--- ACCOUNT IDENTIFICATION DETAILS ---
+• Account Email: ${user.email || 'N/A'}
+• Display Name: ${userProfile?.displayName || 'N/A'}
+• Developer Studio: ${userProfile?.developerName || 'N/A'}
+• User ID (UID): ${user.uid}
+• Play Store Developer Link: ${userProfile?.playStoreDevLink || 'N/A'}
+• Country: ${userProfile?.country || 'N/A'}
+• Date & Time Requested: ${new Date().toLocaleString()}
+
+--- DELETION SCOPE REQUESTED ---
+1. Permanent removal of user authentication profile and account credentials.
+2. Complete erasure of submitted testing applications, app metadata, and feedback.
+3. Unlinking of associated daily testing proof records and tester credits balance.
+
+I understand this action is permanent and irreversible. Please process my account deletion request within 5-7 business days as stated in TesterSetu Privacy Policy.
+
+Thank you,
+${userProfile?.displayName || user.email || 'Developer'}`;
+
+    const subjectEncoded = encodeURIComponent(subjectText);
+    const bodyEncoded = encodeURIComponent(bodyText);
+
+    const mailtoUrl = `mailto:testersetu@gmail.com?subject=${subjectEncoded}&body=${bodyEncoded}`;
+    const gmailWebUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=testersetu@gmail.com&su=${subjectEncoded}&body=${bodyEncoded}`;
+
+    return { subjectText, bodyText, mailtoUrl, gmailWebUrl };
+  };
+
   const handleSendDeletionEmail = async () => {
     if (!user) return;
     setDeleteLoading(true);
 
-    const subject = encodeURIComponent(`Account Deletion Request - TesterSetu [UID: ${user.uid}]`);
-    const body = encodeURIComponent(
-      `Hello TesterSetu Team,\n\nI am formally requesting the permanent deletion of my developer account and all associated data on TesterSetu.\n\nAccount Details:\n- Display Name: ${userProfile?.displayName || 'N/A'}\n- Developer Studio: ${userProfile?.developerName || 'N/A'}\n- Account Email: ${user.email || 'N/A'}\n- User ID (UID): ${user.uid}\n- Date Requested: ${new Date().toLocaleDateString()}\n\nPlease process my account deletion within 5-7 business days as stated in the platform policy.\n\nThank you.`
-    );
-
-    const mailtoUrl = `mailto:testersetu@gmail.com?subject=${subject}&body=${body}`;
+    const { mailtoUrl } = getDeletionEmailDetails();
 
     try {
       await updateDoc(doc(db, 'users', user.uid), {
@@ -104,18 +139,22 @@ export const ProfileAndSettings: React.FC = () => {
         updatedAt: Date.now()
       });
       await refreshUserProfile();
-      
-      // Open default mail client
-      window.location.href = mailtoUrl;
-
-      setRequestSent(true);
-      setDeleteLoading(false);
     } catch (err: any) {
       console.warn("Firestore flag error, triggering mailto fallback:", err.message);
+    } finally {
+      // Trigger email client redirect
       window.location.href = mailtoUrl;
       setRequestSent(true);
       setDeleteLoading(false);
     }
+  };
+
+  const handleCopyEmailText = () => {
+    const { subjectText, bodyText } = getDeletionEmailDetails();
+    const fullText = `To: testersetu@gmail.com\nSubject: ${subjectText}\n\n${bodyText}`;
+    navigator.clipboard.writeText(fullText);
+    setCopiedEmailText(true);
+    setTimeout(() => setCopiedEmailText(false), 3000);
   };
 
   const handleCancelDeletionRequest = async () => {
@@ -481,13 +520,31 @@ export const ProfileAndSettings: React.FC = () => {
                     className="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-md shadow-blue-500/20"
                   >
                     <Mail className="w-4 h-4" />
-                    <span>Resend Email to testersetu@gmail.com</span>
+                    <span>Open Default Mail App (testersetu@gmail.com)</span>
+                  </button>
+
+                  <a
+                    href={getDeletionEmailDetails().gmailWebUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4 text-rose-500" />
+                    <span>Open in Gmail Web</span>
+                  </a>
+
+                  <button
+                    onClick={handleCopyEmailText}
+                    className="w-full py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                  >
+                    {copiedEmailText ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                    <span>{copiedEmailText ? 'Copied Request Format!' : 'Copy Formatted Request Text'}</span>
                   </button>
 
                   <button
                     onClick={handleCancelDeletionRequest}
                     disabled={deleteLoading}
-                    className="w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs cursor-pointer transition-colors"
+                    className="w-full py-2 px-4 rounded-xl text-rose-500 hover:bg-rose-500/10 font-bold text-xs cursor-pointer transition-colors mt-1"
                   >
                     Cancel Deletion Request
                   </button>
@@ -498,37 +555,56 @@ export const ProfileAndSettings: React.FC = () => {
                 <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 space-y-2">
                   <div className="flex items-center gap-2 font-bold text-rose-600 dark:text-rose-400">
                     <AlertTriangle className="w-4 h-4 shrink-0" />
-                    <span>Confirm Deletion Request</span>
+                    <span>Confirm Account Deletion Request</span>
                   </div>
                   <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                    Clicking below will request account deletion by opening your default email client prefilled with your account details addressed to <strong className="text-slate-900 dark:text-white font-mono">testersetu@gmail.com</strong>.
+                    Clicking below will request account deletion by redirecting to your email app prefilled with your account details addressed to <strong className="text-slate-900 dark:text-white font-mono">testersetu@gmail.com</strong>.
                   </p>
                   <p className="text-slate-600 dark:text-slate-300 font-bold">
-                    Account deletion takes approximately 5 to 7 business days to complete.
+                    ⏳ Your account will be deleted by the developer team in 5-7 business days upon receiving your request.
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1.5">
-                  <p className="text-slate-500 font-bold text-[10px] uppercase">Details Included in Request</p>
-                  <div className="flex justify-between"><span className="text-slate-400">Target Email:</span> <span className="font-mono text-blue-500 font-bold">testersetu@gmail.com</span></div>
-                  <div className="flex justify-between"><span className="text-slate-400">Your Account:</span> <span className="font-mono">{user?.email}</span></div>
-                  <div className="flex justify-between"><span className="text-slate-400">Developer Name:</span> <span className="font-bold">{userProfile?.displayName || 'N/A'}</span></div>
-                  <div className="flex justify-between"><span className="text-slate-400">User ID:</span> <span className="font-mono text-[10px]">{user?.uid}</span></div>
+                  <p className="text-slate-500 font-bold text-[10px] uppercase">Details Included in Email</p>
+                  <div className="flex justify-between"><span className="text-slate-400">Target Developer Email:</span> <span className="font-mono text-blue-500 font-bold">testersetu@gmail.com</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">Your Account Email:</span> <span className="font-mono">{user?.email}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">Developer Studio:</span> <span className="font-bold">{userProfile?.developerName || userProfile?.displayName || 'N/A'}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">User ID (UID):</span> <span className="font-mono text-[10px]">{user?.uid}</span></div>
                 </div>
 
-                <div className="flex gap-2 pt-2">
+                <div className="space-y-2 pt-1">
                   <button
                     onClick={handleSendDeletionEmail}
                     disabled={deleteLoading}
-                    className="flex-1 py-3 px-4 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-lg shadow-rose-500/20"
+                    className="w-full py-3 px-4 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-lg shadow-rose-500/20"
                   >
                     <Send className="w-4 h-4" />
-                    <span>Send Deletion Email</span>
+                    <span>Send Deletion Email to testersetu@gmail.com</span>
                   </button>
-                  
+
+                  <a
+                    href={getDeletionEmailDetails().gmailWebUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => {
+                      updateDoc(doc(db, 'users', user?.uid || ''), {
+                        deletionRequested: true,
+                        deletionRequestedAt: Date.now(),
+                        updatedAt: Date.now()
+                      }).catch(() => {});
+                      setRequestSent(true);
+                      refreshUserProfile();
+                    }}
+                    className="w-full py-2.5 px-4 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4 text-rose-500" />
+                    <span>Send via Gmail Web</span>
+                  </a>
+
                   <button
                     onClick={() => setShowDeleteModal(false)}
-                    className="py-3 px-4 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs cursor-pointer transition-colors"
+                    className="w-full py-2.5 px-4 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-bold text-xs cursor-pointer transition-colors"
                   >
                     Cancel
                   </button>
