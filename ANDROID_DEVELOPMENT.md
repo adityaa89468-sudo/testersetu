@@ -75,8 +75,8 @@ Include necessary permissions and intent filters for opt-in deep links:
 ## 🚀 3. Google Play Console 20-Testers Requirement Checklist
 
 1. **Google Group Setup**:
-   - Join our community Google Group: `developer-community-t4t@googlegroups.com`
-   - In **Google Play Console** &rarr; **Testing** &rarr; **Closed testing**, under **Testers**, select **Google Groups** and add `developer-community-t4t@googlegroups.com`.
+   - Join our official Google Group: `testersetu@googlegroups.com`
+   - In **Google Play Console** &rarr; **Testing** &rarr; **Closed testing**, under **Testers**, select **Google Groups** and add `testersetu@googlegroups.com`.
 
 2. **Publish Closed Testing Track**:
    - Upload your AAB (Android App Bundle) build to Closed Testing.
