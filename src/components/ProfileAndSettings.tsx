@@ -22,10 +22,14 @@ import {
   X,
   Lock,
   Copy,
-  Check
+  Check,
+  Clock,
+  Send,
+  Mail,
+  AlertTriangle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { doc, updateDoc, db, logoutUser, deleteAccount } from '../lib/firebase';
+import { doc, updateDoc, db, logoutUser } from '../lib/firebase';
 import { COMMUNITY_GUIDELINES } from '../lib/seedData';
 import { PrivacyPolicyView } from './PrivacyPolicyView';
 
@@ -43,6 +47,11 @@ export const ProfileAndSettings: React.FC = () => {
   const [showGuidelines, setShowGuidelines] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [copiedUrl, setCopiedUrl] = useState(false);
+
+  // Deletion Request States
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [requestSent, setRequestSent] = useState(false);
 
   const privacyUrl = `${window.location.origin}${window.location.pathname}?page=privacy`;
 
@@ -74,6 +83,58 @@ export const ProfileAndSettings: React.FC = () => {
     } catch (err: any) {
       setMsg('Failed to update profile: ' + err.message);
       setLoading(false);
+    }
+  };
+
+  const handleSendDeletionEmail = async () => {
+    if (!user) return;
+    setDeleteLoading(true);
+
+    const subject = encodeURIComponent(`Account Deletion Request - TesterSetu [UID: ${user.uid}]`);
+    const body = encodeURIComponent(
+      `Hello TesterSetu Team,\n\nI am formally requesting the permanent deletion of my developer account and all associated data on TesterSetu.\n\nAccount Details:\n- Display Name: ${userProfile?.displayName || 'N/A'}\n- Developer Studio: ${userProfile?.developerName || 'N/A'}\n- Account Email: ${user.email || 'N/A'}\n- User ID (UID): ${user.uid}\n- Date Requested: ${new Date().toLocaleDateString()}\n\nPlease process my account deletion within 5-7 business days as stated in the platform policy.\n\nThank you.`
+    );
+
+    const mailtoUrl = `mailto:testersetu@gmail.com?subject=${subject}&body=${body}`;
+
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        deletionRequested: true,
+        deletionRequestedAt: Date.now(),
+        updatedAt: Date.now()
+      });
+      await refreshUserProfile();
+      
+      // Open default mail client
+      window.location.href = mailtoUrl;
+
+      setRequestSent(true);
+      setDeleteLoading(false);
+    } catch (err: any) {
+      console.warn("Firestore flag error, triggering mailto fallback:", err.message);
+      window.location.href = mailtoUrl;
+      setRequestSent(true);
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleCancelDeletionRequest = async () => {
+    if (!user) return;
+    setDeleteLoading(true);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        deletionRequested: false,
+        deletionRequestedAt: null,
+        updatedAt: Date.now()
+      });
+      await refreshUserProfile();
+      setRequestSent(false);
+      setShowDeleteModal(false);
+      setMsg('Account deletion request has been cancelled.');
+    } catch (err: any) {
+      console.error("Error cancelling deletion request:", err);
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -298,6 +359,34 @@ export const ProfileAndSettings: React.FC = () => {
         <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
           <h3 className="font-black text-base text-slate-900 dark:text-white">Account Management</h3>
 
+          {userProfile?.deletionRequested && (
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-2 text-xs">
+              <div className="flex items-center gap-2 font-bold text-amber-600 dark:text-amber-400">
+                <Clock className="w-4 h-4 shrink-0 animate-pulse" />
+                <span>Account Deletion Request Sent</span>
+              </div>
+              <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                Your account deletion request has been sent to the developers at <strong className="text-slate-900 dark:text-white font-mono">testersetu@gmail.com</strong>. Your account will be permanently deleted within <strong>5-7 days</strong>.
+              </p>
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs cursor-pointer transition-colors flex items-center gap-1"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>View Status / Resend Email</span>
+                </button>
+                <button
+                  onClick={handleCancelDeletionRequest}
+                  disabled={deleteLoading}
+                  className="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs cursor-pointer transition-colors"
+                >
+                  Cancel Request
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-2 text-xs">
             <button
               onClick={async () => { await logoutUser(); }}
@@ -308,16 +397,11 @@ export const ProfileAndSettings: React.FC = () => {
             </button>
 
             <button
-              onClick={async () => {
-                if (confirm('Are you sure you want to delete your developer account? This action is permanent and cannot be undone.')) {
-                  const res = await deleteAccount();
-                  if (res.error) alert(res.error);
-                }
-              }}
+              onClick={() => setShowDeleteModal(true)}
               className="w-full py-3 px-4 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 font-bold text-xs border border-rose-500/20 flex items-center justify-center gap-2 transition-colors cursor-pointer"
             >
               <Trash2 className="w-4 h-4" />
-              <span>Delete Developer Account</span>
+              <span>{userProfile?.deletionRequested ? 'Account Deletion Status (5-7 Days)' : 'Delete Developer Account'}</span>
             </button>
           </div>
         </div>
@@ -350,6 +434,110 @@ export const ProfileAndSettings: React.FC = () => {
       {/* Privacy Policy Modal */}
       {showPrivacyPolicy && (
         <PrivacyPolicyView onClose={() => setShowPrivacyPolicy(false)} />
+      )}
+
+      {/* Account Deletion Request Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 space-y-5 border border-slate-200 dark:border-slate-800 shadow-2xl text-slate-900 dark:text-slate-100">
+            
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400 font-black text-base">
+                <Trash2 className="w-5 h-5 shrink-0" />
+                <span>Delete Developer Account</span>
+              </div>
+              <button onClick={() => setShowDeleteModal(false)} className="p-1 rounded-xl text-slate-400 hover:text-slate-200">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {(userProfile?.deletionRequested || requestSent) ? (
+              <div className="space-y-4">
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-2 text-xs">
+                  <div className="flex items-center gap-2 font-black text-amber-600 dark:text-amber-400 text-sm">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Deletion Request Submitted</span>
+                  </div>
+                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Your account deletion request has been sent to the developers at <strong className="text-slate-900 dark:text-white font-mono">testersetu@gmail.com</strong>.
+                  </p>
+                  <p className="text-slate-600 dark:text-slate-300 font-bold">
+                    ⏱️ Your account and associated data will be permanently deleted within 5 to 7 business days.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1.5 text-xs">
+                  <p className="text-slate-500 font-bold text-[10px] uppercase">Request Details</p>
+                  <div className="flex justify-between"><span className="text-slate-400">Recipient Email:</span> <span className="font-mono text-blue-500 font-bold">testersetu@gmail.com</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">Account Email:</span> <span className="font-mono">{user?.email}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">User ID:</span> <span className="font-mono text-[10px]">{user?.uid}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">Estimated Completion:</span> <span className="font-bold text-slate-800 dark:text-slate-200">5-7 Business Days</span></div>
+                </div>
+
+                <div className="space-y-2 pt-2">
+                  <button
+                    onClick={handleSendDeletionEmail}
+                    disabled={deleteLoading}
+                    className="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-md shadow-blue-500/20"
+                  >
+                    <Mail className="w-4 h-4" />
+                    <span>Resend Email to testersetu@gmail.com</span>
+                  </button>
+
+                  <button
+                    onClick={handleCancelDeletionRequest}
+                    disabled={deleteLoading}
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs cursor-pointer transition-colors"
+                  >
+                    Cancel Deletion Request
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4 text-xs">
+                <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 space-y-2">
+                  <div className="flex items-center gap-2 font-bold text-rose-600 dark:text-rose-400">
+                    <AlertTriangle className="w-4 h-4 shrink-0" />
+                    <span>Confirm Deletion Request</span>
+                  </div>
+                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Clicking below will request account deletion by opening your default email client prefilled with your account details addressed to <strong className="text-slate-900 dark:text-white font-mono">testersetu@gmail.com</strong>.
+                  </p>
+                  <p className="text-slate-600 dark:text-slate-300 font-bold">
+                    Account deletion takes approximately 5 to 7 business days to complete.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                  <p className="text-slate-500 font-bold text-[10px] uppercase">Details Included in Request</p>
+                  <div className="flex justify-between"><span className="text-slate-400">Target Email:</span> <span className="font-mono text-blue-500 font-bold">testersetu@gmail.com</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">Your Account:</span> <span className="font-mono">{user?.email}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">Developer Name:</span> <span className="font-bold">{userProfile?.displayName || 'N/A'}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-400">User ID:</span> <span className="font-mono text-[10px]">{user?.uid}</span></div>
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <button
+                    onClick={handleSendDeletionEmail}
+                    disabled={deleteLoading}
+                    className="flex-1 py-3 px-4 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-lg shadow-rose-500/20"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>Send Deletion Email</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => setShowDeleteModal(false)}
+                    className="py-3 px-4 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs cursor-pointer transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+          </div>
+        </div>
       )}
 
     </div>

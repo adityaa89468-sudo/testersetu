@@ -96,7 +96,7 @@ export const DailyProofModal: React.FC<DailyProofModalProps> = ({
       ctx.fill();
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 14px sans-serif';
-      ctx.fillText('TESTCIRCLE', 138, 418);
+      ctx.fillText('TESTERSETU', 138, 418);
       ctx.fillText(`DAY ${currentDay} PROOF`, 132, 438);
 
       setScreenshotUrl(sampleCanvas.toDataURL('image/png'));

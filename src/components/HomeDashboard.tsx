@@ -252,7 +252,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           <span>Google Play Closed Testing Policy & Disclaimers</span>
         </div>
         <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-          TestCircle provides a community environment to recruit opt-in closed-beta testers. <strong>Google Play maintains sole control over production track access approvals.</strong> Utilizing TestCircle does not guarantee Google Play approval, but ensures genuine 14-day manual testing compliance.
+          TesterSetu provides a community environment to recruit opt-in closed-beta testers. <strong>Google Play maintains sole control over production track access approvals.</strong> Utilizing TesterSetu does not guarantee Google Play approval, but ensures genuine 14-day manual testing compliance.
         </p>
       </div>
 

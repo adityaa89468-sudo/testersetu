@@ -8,7 +8,7 @@ export const DEFAULT_PLATFORM_CONFIG: PlatformConfig = {
   announcements: [
     {
       id: 'ann-1',
-      title: 'Welcome to TestCircle 1.0!',
+      title: 'Welcome to TesterSetu 1.0!',
       content: 'Connect with fellow Android developers to test closed-beta apps, submit daily proofs, and qualify for Google Play production access.',
       date: Date.now() - 86400000
     },
@@ -183,7 +183,7 @@ export const COMMUNITY_GUIDELINES = [
   },
   {
     title: '4. Constructive Private Feedback',
-    content: 'Provide respectful, structured feedback regarding performance, UI, stability, and bugs directly through TestCircle. Never post negative public reviews or demand compensation outside the platform credit system.'
+    content: 'Provide respectful, structured feedback regarding performance, UI, stability, and bugs directly through TesterSetu. Never post negative public reviews or demand compensation outside the platform credit system.'
   },
   {
     title: '5. Zero Tolerance for Abuse',

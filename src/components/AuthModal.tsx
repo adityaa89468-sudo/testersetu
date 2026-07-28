@@ -174,7 +174,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: ext
           <TestCircleLogo size="lg" className="justify-center" showText={false} />
           <h2 className="text-2xl font-black text-slate-900 dark:text-white">
             {mode === 'login' && 'Welcome Back'}
-            {mode === 'register' && 'Join TestCircle'}
+            {mode === 'register' && 'Join TesterSetu'}
             {mode === 'forgot' && 'Reset Password'}
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">

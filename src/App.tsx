@@ -196,7 +196,7 @@ const AppContent: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center space-y-4">
         <TestCircleLogo className="w-12 h-12 animate-pulse" />
-        <p className="text-xs text-slate-400 font-bold">Initializing TestCircle Platform...</p>
+        <p className="text-xs text-slate-400 font-bold">Initializing TesterSetu Platform...</p>
       </div>
     );
   }

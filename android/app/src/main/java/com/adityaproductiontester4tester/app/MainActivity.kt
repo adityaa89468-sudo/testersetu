@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Loads the live TesterCircle application engine
+        // Loads the live TesterSetu application engine
         webView.loadUrl("https://ais-dev-dp6u2vzslmpecx7aovcqg3-309080682455.asia-east1.run.app")
     }
 

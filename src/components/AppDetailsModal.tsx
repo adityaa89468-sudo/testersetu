@@ -57,7 +57,7 @@ export const AppDetailsModal: React.FC<AppDetailsModalProps> = ({
       try {
         await navigator.share({
           title: app.appName,
-          text: `Join testing campaign for ${app.appName} on TestCircle`,
+          text: `Join testing campaign for ${app.appName} on TesterSetu`,
           url: window.location.href
         });
       } catch (err) {

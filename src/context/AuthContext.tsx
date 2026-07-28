@@ -44,15 +44,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Local storage flags for theme & onboarding
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    return (localStorage.getItem('testcircle_theme') as 'light' | 'dark') || 'light';
+    return (localStorage.getItem('testersetu_theme') || localStorage.getItem('testcircle_theme') as 'light' | 'dark') || 'light';
   });
 
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean>(() => {
-    return localStorage.getItem('testcircle_onboarding_done') === 'true';
+    return localStorage.getItem('testersetu_onboarding_done') === 'true' || localStorage.getItem('testcircle_onboarding_done') === 'true';
   });
 
   useEffect(() => {
-    localStorage.setItem('testcircle_theme', theme);
+    localStorage.setItem('testersetu_theme', theme);
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const completeOnboarding = () => {
-    localStorage.setItem('testcircle_onboarding_done', 'true');
+    localStorage.setItem('testersetu_onboarding_done', 'true');
     setOnboardingCompleted(true);
   };
 
@@ -110,7 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Welcome notification
         await sendNotification(
           currentUser.uid,
-          'Welcome to TestCircle!',
+          'Welcome to TesterSetu!',
           `You have received ${DEFAULT_PLATFORM_CONFIG.welcomeBonusCredits} welcome credits to start your mutual Android testing journey.`,
           'admin'
         );

@@ -19,6 +19,8 @@ export interface UserProfile {
   createdAt: number;
   updatedAt: number;
   isSuspended?: boolean;
+  deletionRequested?: boolean;
+  deletionRequestedAt?: number;
   notificationPreferences?: {
     emailReminders: boolean;
     pushNotifications: boolean;
