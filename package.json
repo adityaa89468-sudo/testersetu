@@ -10,7 +10,8 @@
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
     "cap:build": "npm run build && npx cap sync",
-    "cap:sync": "npx cap sync android"
+    "cap:sync": "npx cap sync android",
+    "cap:assets": "npx cap assets generate --android"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.2",
@@ -39,6 +40,7 @@
     "vite": "^6.2.0"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
     "autoprefixer": "^10.4.21",
