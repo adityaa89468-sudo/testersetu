@@ -11,7 +11,7 @@
     "lint": "tsc --noEmit",
     "cap:build": "npm run build && npx cap sync",
     "cap:sync": "npx cap sync android",
-    "cap:assets": "npx cap assets generate --android"
+    "cap:assets": "npx @capacitor/assets generate"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.2",
