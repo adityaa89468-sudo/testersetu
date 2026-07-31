@@ -28,6 +28,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         webView.webViewClient = object : WebViewClient() {
+            @Deprecated("Deprecated in Java", ReplaceWith("shouldOverrideUrlLoading(view, request)"))
+            @Suppress("DEPRECATION")
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                 return false
             }
@@ -37,6 +39,8 @@ class MainActivity : AppCompatActivity() {
         webView.loadUrl("https://ais-dev-dp6u2vzslmpecx7aovcqg3-309080682455.asia-east1.run.app")
     }
 
+    @Deprecated("Deprecated in Java")
+    @Suppress("DEPRECATION")
     override fun onBackPressed() {
         if (webView.canGoBack()) {
             webView.goBack()
