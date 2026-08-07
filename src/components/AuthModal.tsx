@@ -4,6 +4,8 @@ import {
   X, 
   Mail, 
   Lock, 
+  Eye,
+  EyeOff,
   User as UserIcon, 
   Globe, 
   Briefcase, 
@@ -57,6 +59,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: ext
   // Form fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [developerName, setDeveloperName] = useState('');
   const [country, setCountry] = useState('United States');
@@ -73,7 +76,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: ext
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
-    const { user, error: googleErr } = await signInWithGoogle();
+    const { user, error: googleErr, isRedirecting } = await signInWithGoogle();
+    if (isRedirecting) {
+      setSuccessMsg('Redirecting to Google for sign-in...');
+      return;
+    }
     if (googleErr) {
       setError(googleErr);
       setLoading(false);
@@ -297,13 +304,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: ext
               <div className="relative">
                 <Lock className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full pl-9 pr-10 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 outline-none"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(prev => !prev)}
+                  className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
           )}

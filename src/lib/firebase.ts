@@ -3,6 +3,8 @@ import {
   getAuth, 
   GoogleAuthProvider, 
   signInWithPopup, 
+  signInWithRedirect,
+  getRedirectResult,
   signOut as firebaseSignOut, 
   onAuthStateChanged,
   createUserWithEmailAndPassword,
@@ -111,27 +113,53 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 }
 
 // Authentication Functions
-export const signInWithGoogle = async () => {
+export const checkGoogleRedirectResult = async () => {
+  try {
+    const result = await getRedirectResult(auth);
+    if (result?.user) {
+      return { user: result.user, error: null };
+    }
+  } catch (error: any) {
+    console.error('Google Redirect Error:', error);
+    return { user: null, error: error.message || 'Google authentication redirect failed.' };
+  }
+  return { user: null, error: null };
+};
+
+export const signInWithGoogle = async (tryRedirectFallback = true) => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     return { user: result.user, error: null };
   } catch (error: any) {
     console.error('Google Sign-In Error:', error);
-    let errorMessage = 'Failed to sign in with Google. Please try again or use Email & Password below.';
     const code = error?.code || '';
     const msg = error?.message || '';
 
+    // If popup is blocked or disallowed in WebView/emulator, attempt redirect as fallback
+    if (tryRedirectFallback && (code === 'auth/popup-blocked' || msg.includes('requested action is invalid') || msg.includes('disallowed_useragent'))) {
+      try {
+        await signInWithRedirect(auth, googleProvider);
+        return { user: null, error: null, isRedirecting: true };
+      } catch (redirectErr: any) {
+        console.error('Redirect Fallback Error:', redirectErr);
+      }
+    }
+
+    let errorMessage = 'Failed to sign in with Google. Please use Email & Password sign-in below.';
+
     if (code === 'auth/unauthorized-domain') {
       const domain = window.location.hostname;
-      errorMessage = `Unauthorized Domain: "${domain}" is not listed in Firebase Console -> Authentication -> Settings -> Authorized domains.`;
+      errorMessage = `Unauthorized Domain: "${domain}" is not added under Firebase Console -> Authentication -> Settings -> Authorized domains. Add "${domain}" or use Email & Password below.`;
     } else if (code === 'auth/operation-not-allowed') {
-      errorMessage = 'Google Sign-In is disabled in Firebase Console. Please enable Google provider under Authentication -> Sign-in method, or use Email/Password sign-in below.';
+      errorMessage = 'Google Sign-In is not enabled in Firebase Console. Please enable Google provider under Authentication -> Sign-in method, or use Email & Password sign-in below.';
     } else if (code === 'auth/popup-closed-by-user') {
-      errorMessage = 'Sign-in popup was closed before completing.';
+      errorMessage = 'Google Sign-In popup was closed before completing.';
     } else if (code === 'auth/popup-blocked') {
-      errorMessage = 'Sign-in popup was blocked by browser/emulator. Please use Email & Password sign-in below.';
+      errorMessage = 'Google Sign-In popup was blocked by browser/emulator. Please use Email & Password sign-in below.';
     } else if (msg.includes('requested action is invalid') || msg.includes('disallowed_useragent') || code === 'auth/invalid-action-code') {
       errorMessage = 'Google OAuth popup is restricted in Android Emulator/WebView. Please use Email & Password sign-in/up below for instant access.';
+    } else if (code === 'auth/network-request-failed') {
+      errorMessage = 'Network error during authentication. Please check your connection.';
     } else if (error.message) {
       errorMessage = error.message;
     }
@@ -140,48 +168,67 @@ export const signInWithGoogle = async () => {
 };
 
 export const signUpWithEmail = async (email: string, pass: string, name: string) => {
+  const cleanEmail = email.trim().toLowerCase();
   try {
-    const res = await createUserWithEmailAndPassword(auth, email, pass);
+    const res = await createUserWithEmailAndPassword(auth, cleanEmail, pass);
     if (res.user) {
-      await updateProfile(res.user, { displayName: name });
+      await updateProfile(res.user, { displayName: name.trim() });
     }
     return { user: res.user, error: null };
   } catch (err: any) {
     console.error('Sign-Up Error:', err);
     let errorMsg = err.message || 'Failed to create account.';
     if (err.code === 'auth/operation-not-allowed') {
-      errorMsg = 'Email/Password sign-in is disabled in your Firebase Console -> Authentication -> Sign-in method.';
+      errorMsg = 'Email/Password sign-in is disabled in Firebase Console -> Authentication -> Sign-in method.';
     } else if (err.code === 'auth/email-already-in-use') {
       errorMsg = 'This email address is already registered. Please sign in instead.';
     } else if (err.code === 'auth/weak-password') {
       errorMsg = 'Password should be at least 6 characters.';
+    } else if (err.code === 'auth/invalid-email') {
+      errorMsg = 'Please enter a valid email address.';
+    } else if (err.code === 'auth/network-request-failed') {
+      errorMsg = 'Network error. Please check your internet connection.';
     }
     return { user: null, error: errorMsg };
   }
 };
 
 export const signInWithEmail = async (email: string, pass: string) => {
+  const cleanEmail = email.trim().toLowerCase();
   try {
-    const res = await signInWithEmailAndPassword(auth, email, pass);
+    const res = await signInWithEmailAndPassword(auth, cleanEmail, pass);
     return { user: res.user, error: null };
   } catch (err: any) {
     console.error('Sign-In Error:', err);
     let errorMsg = err.message || 'Invalid credentials.';
     if (err.code === 'auth/operation-not-allowed') {
-      errorMsg = 'Email/Password sign-in is disabled in your Firebase Console -> Authentication -> Sign-in method.';
+      errorMsg = 'Email/Password sign-in is disabled in Firebase Console -> Authentication -> Sign-in method.';
     } else if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-      errorMsg = 'Invalid email or password. Please check your credentials or create a new account.';
+      errorMsg = 'Invalid email or password. Check your credentials or click "Sign Up" to create an account.';
+    } else if (err.code === 'auth/invalid-email') {
+      errorMsg = 'Please enter a valid email address.';
+    } else if (err.code === 'auth/too-many-requests') {
+      errorMsg = 'Too many failed login attempts. Please reset password or try again later.';
+    } else if (err.code === 'auth/network-request-failed') {
+      errorMsg = 'Network error. Please check your internet connection.';
     }
     return { user: null, error: errorMsg };
   }
 };
 
 export const resetPassword = async (email: string) => {
+  const cleanEmail = email.trim().toLowerCase();
   try {
-    await sendPasswordResetEmail(auth, email);
+    await sendPasswordResetEmail(auth, cleanEmail);
     return { error: null };
   } catch (err: any) {
-    return { error: err.message || 'Failed to send password reset email.' };
+    let msg = err.message || 'Failed to send password reset email.';
+    if (err.code === 'auth/user-not-found') {
+      msg = 'No user account found with this email address.';
+    } else if (err.code === 'auth/invalid-email') {
+      msg = 'Please enter a valid email address.';
+    }
+    return { error: msg };
   }
 };
 

@@ -4,7 +4,8 @@ import {
   auth, 
   db, 
   type User, 
-  sendNotification 
+  sendNotification,
+  checkGoogleRedirectResult
 } from '../lib/firebase';
 import { doc, getDoc, setDoc, onSnapshot, collection, query, where } from 'firebase/firestore';
 import { UserProfile, AppNotification } from '../types';
@@ -121,6 +122,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    // Process Google redirect sign-in result if applicable
+    checkGoogleRedirectResult().then(({ user: redirectUser, error }) => {
+      if (redirectUser) {
+        fetchOrCreateProfile(redirectUser);
+      }
+      if (error) {
+        console.warn("Google Redirect Auth result notice:", error);
+      }
+    });
+
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
