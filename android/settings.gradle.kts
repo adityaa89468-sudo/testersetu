@@ -1,3 +1,5 @@
+import java.io.File
+
 pluginManagement {
     repositories {
         google {
@@ -23,9 +25,9 @@ rootProject.name = "TesterSetu"
 include(":app")
 
 include(":capacitor-android")
-project(":capacitor-android").projectDir = java.io.File("../node_modules/@capacitor/android/capacitor")
+project(":capacitor-android").projectDir = File("../node_modules/@capacitor/android/capacitor")
 
-val capacitorSettingsGradle = java.io.File("capacitor.settings.gradle")
+val capacitorSettingsGradle = File("capacitor.settings.gradle")
 if (capacitorSettingsGradle.exists()) {
     apply(from = capacitorSettingsGradle)
 }

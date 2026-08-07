@@ -1,3 +1,5 @@
+import java.io.File
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -64,7 +66,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 }
 
-val capacitorBuildGradle = java.io.File("capacitor.build.gradle")
+val capacitorBuildGradle = File("capacitor.build.gradle")
 if (capacitorBuildGradle.exists()) {
     apply(from = capacitorBuildGradle)
 }
