@@ -201,18 +201,16 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // If user is not logged in and splash is active
-  if (!user && showSplash) {
+  // Mandatory Auth Gate: Without login or signup, do not let the user enter the app
+  if (!user) {
     return (
       <>
         <SplashAndOnboarding
           onGetStarted={() => {
-            setShowSplash(false);
             setAuthMode('register');
             setAuthModalOpen(true);
           }}
           onLogin={() => {
-            setShowSplash(false);
             setAuthMode('login');
             setAuthModalOpen(true);
           }}

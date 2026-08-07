@@ -166,9 +166,9 @@ export const SplashAndOnboarding: React.FC<SplashAndOnboardingProps> = ({ onComp
             </button>
             <button
               onClick={handleGetStarted}
-              className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer px-3 py-1.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800"
+              className="text-xs font-bold text-teal-600 dark:text-teal-400 hover:bg-teal-500/10 transition-colors cursor-pointer px-3 py-1.5 rounded-full"
             >
-              Skip
+              Sign Up
             </button>
           </div>
         </div>
