@@ -14,6 +14,7 @@ import {
 } from 'firebase/auth';
 import { 
   getFirestore, 
+  initializeFirestore,
   doc, 
   getDoc, 
   getDocFromServer,
@@ -38,23 +39,24 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 export const auth = getAuth(app);
 
-// Initialize Firestore
-export const db = firebaseConfig.firestoreDatabaseId 
-  ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
-  : getFirestore(app);
+// Initialize Firestore with auto-detect long polling for iframe/emulator compatibility
+const firestoreDbId = firebaseConfig.firestoreDatabaseId || undefined;
+export const db = initializeFirestore(app, {
+  experimentalAutoDetectLongPolling: true,
+}, firestoreDbId);
 
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
 
-// Non-blocking connection check
+// Non-blocking connection check with silent error handling
 export async function testConnection() {
   try {
-    await getDocFromServer(doc(db, '_connection_check', 'ping'));
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.warn("Firestore running in offline mode. Local cache active.");
+    await getDoc(doc(db, '_connection_check', 'ping'));
+  } catch (error: any) {
+    if (error?.code === 'unavailable' || error?.message?.includes('offline')) {
+      console.info("Firestore operating with cached/offline capabilities.");
     }
   }
 }
@@ -115,14 +117,21 @@ export const signInWithGoogle = async () => {
     return { user: result.user, error: null };
   } catch (error: any) {
     console.error('Google Sign-In Error:', error);
-    let errorMessage = 'Failed to sign in with Google. Please try again.';
-    if (error.code === 'auth/unauthorized-domain') {
+    let errorMessage = 'Failed to sign in with Google. Please try again or use Email & Password below.';
+    const code = error?.code || '';
+    const msg = error?.message || '';
+
+    if (code === 'auth/unauthorized-domain') {
       const domain = window.location.hostname;
       errorMessage = `Unauthorized Domain: "${domain}" is not listed in Firebase Console -> Authentication -> Settings -> Authorized domains.`;
-    } else if (error.code === 'auth/popup-closed-by-user') {
+    } else if (code === 'auth/operation-not-allowed') {
+      errorMessage = 'Google Sign-In is disabled in Firebase Console. Please enable Google provider under Authentication -> Sign-in method, or use Email/Password sign-in below.';
+    } else if (code === 'auth/popup-closed-by-user') {
       errorMessage = 'Sign-in popup was closed before completing.';
-    } else if (error.code === 'auth/popup-blocked') {
-      errorMessage = 'Sign-in popup was blocked by browser. Please allow popups.';
+    } else if (code === 'auth/popup-blocked') {
+      errorMessage = 'Sign-in popup was blocked by browser/emulator. Please use Email & Password sign-in below.';
+    } else if (msg.includes('requested action is invalid') || msg.includes('disallowed_useragent') || code === 'auth/invalid-action-code') {
+      errorMessage = 'Google OAuth popup is restricted in Android Emulator/WebView. Please use Email & Password sign-in/up below for instant access.';
     } else if (error.message) {
       errorMessage = error.message;
     }
@@ -139,7 +148,15 @@ export const signUpWithEmail = async (email: string, pass: string, name: string)
     return { user: res.user, error: null };
   } catch (err: any) {
     console.error('Sign-Up Error:', err);
-    return { user: null, error: err.message || 'Failed to create account.' };
+    let errorMsg = err.message || 'Failed to create account.';
+    if (err.code === 'auth/operation-not-allowed') {
+      errorMsg = 'Email/Password sign-in is disabled in your Firebase Console -> Authentication -> Sign-in method.';
+    } else if (err.code === 'auth/email-already-in-use') {
+      errorMsg = 'This email address is already registered. Please sign in instead.';
+    } else if (err.code === 'auth/weak-password') {
+      errorMsg = 'Password should be at least 6 characters.';
+    }
+    return { user: null, error: errorMsg };
   }
 };
 
@@ -149,7 +166,13 @@ export const signInWithEmail = async (email: string, pass: string) => {
     return { user: res.user, error: null };
   } catch (err: any) {
     console.error('Sign-In Error:', err);
-    return { user: null, error: err.message || 'Invalid credentials.' };
+    let errorMsg = err.message || 'Invalid credentials.';
+    if (err.code === 'auth/operation-not-allowed') {
+      errorMsg = 'Email/Password sign-in is disabled in your Firebase Console -> Authentication -> Sign-in method.';
+    } else if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+      errorMsg = 'Invalid email or password. Please check your credentials or create a new account.';
+    }
+    return { user: null, error: errorMsg };
   }
 };
 
