@@ -116,7 +116,10 @@ export const signInWithGoogle = async () => {
   } catch (error: any) {
     console.error('Google Sign-In Error:', error);
     let errorMessage = 'Failed to sign in with Google. Please try again.';
-    if (error.code === 'auth/popup-closed-by-user') {
+    if (error.code === 'auth/unauthorized-domain') {
+      const domain = window.location.hostname;
+      errorMessage = `Unauthorized Domain: "${domain}" is not listed in Firebase Console -> Authentication -> Settings -> Authorized domains.`;
+    } else if (error.code === 'auth/popup-closed-by-user') {
       errorMessage = 'Sign-in popup was closed before completing.';
     } else if (error.code === 'auth/popup-blocked') {
       errorMessage = 'Sign-in popup was blocked by browser. Please allow popups.';
